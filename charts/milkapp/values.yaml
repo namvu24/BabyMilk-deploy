@@ -1,0 +1,58 @@
+# MilkApp Helm Chart — Default Values
+
+# -- App deployment
+replicaCount: 1
+
+image:
+  repository: jrbalrog9/babymilk
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+# -- Nginx reverse proxy / static file server
+nginx:
+  enabled: true
+  image:
+    repository: nginx
+    tag: alpine
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+
+# -- Ingress
+ingress:
+  enabled: true
+  className: traefik
+  host: ""
+  annotations: {}
+
+# -- Database connection
+database:
+  host: ""
+  port: 5432
+  sslmode: disable
+
+# -- PostgreSQL (official image, self-managed)
+postgresql:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+  auth:
+    username: milkapp
+    password:
+    database: milkapp
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi

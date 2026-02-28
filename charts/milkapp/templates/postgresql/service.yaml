@@ -1,0 +1,40 @@
+{{- if .Values.postgresql.enabled }}
+# ClusterIP service — used by the app to connect to PostgreSQL
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "milkapp.fullname" . }}-postgresql
+  labels:
+    {{- include "milkapp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+spec:
+  type: ClusterIP
+  ports:
+    - name: tcp-postgresql
+      port: 5432
+      targetPort: tcp-postgresql
+      protocol: TCP
+  selector:
+    {{- include "milkapp.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+---
+# Headless service — required by the StatefulSet for stable pod DNS
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "milkapp.fullname" . }}-postgresql-hl
+  labels:
+    {{- include "milkapp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: tcp-postgresql
+      port: 5432
+      targetPort: tcp-postgresql
+      protocol: TCP
+  selector:
+    {{- include "milkapp.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+{{- end }}

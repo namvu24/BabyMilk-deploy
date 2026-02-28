@@ -1,0 +1,20 @@
+# Dev environment overrides
+image:
+  repository: jrbalrog9/babymilk
+  tag: "latest"
+  pullPolicy: Always
+
+replicaCount: 1
+
+ingress:
+  enabled: true
+  className: traefik
+  host: ""
+
+nginx:
+  enabled: true
+
+postgresql:
+  enabled: true
+  persistence:
+    size: 1Gi

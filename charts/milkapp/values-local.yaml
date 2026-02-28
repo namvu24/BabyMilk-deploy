@@ -1,0 +1,17 @@
+# k3d local development overrides
+
+image:
+  repository: jrbalrog9/babymilk
+  tag: latest
+  pullPolicy: Always
+
+ingress:
+  enabled: true
+  className: traefik
+  host: ""
+
+nginx:
+  enabled: true
+
+postgresql:
+  enabled: true

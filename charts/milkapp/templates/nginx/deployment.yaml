@@ -1,0 +1,67 @@
+{{- if .Values.nginx.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "milkapp.fullname" . }}-nginx
+  labels:
+    {{- include "milkapp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "milkapp.nginxSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "milkapp.nginxSelectorLabels" . | nindent 8 }}
+    spec:
+      initContainers:
+        # Copy static files from the milkapp image
+        - name: copy-static
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["cp", "-r", "/app/static/.", "/static/"]
+          volumeMounts:
+            - name: static-files
+              mountPath: /static
+      containers:
+        - name: nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+            - name: static-files
+              mountPath: /usr/share/nginx/html
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: {{ include "milkapp.fullname" . }}-nginx
+        - name: static-files
+          emptyDir: {}
+{{- end }}
