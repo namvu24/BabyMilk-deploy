@@ -27,7 +27,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: {{ .Values.service.port }}
               protocol: TCP
           env:
             - name: DATABASE_URL
@@ -36,7 +36,7 @@ spec:
                   name: {{ include "babymilk.dbSecretName" . }}
                   key: {{ .Values.secrets.db.key }}
             - name: PORT
-              value: "8080"
+              value: "{{ .Values.service.port }}"
           resources:
             requests:
               cpu: 50m
