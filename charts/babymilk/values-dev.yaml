@@ -11,6 +11,9 @@ ingress:
   className: traefik
   host: ""
 
+service:
+  port: 8081
+
 nginx:
   enabled: true
   cacheControl:
