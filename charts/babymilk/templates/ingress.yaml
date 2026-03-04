@@ -23,7 +23,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "babymilk.fullname" . }}
+                name: {{ include "babymilk.fullname" . }}-backend
                 port:
                   number: {{ .Values.service.port }}
           - path: /

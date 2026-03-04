@@ -12,7 +12,7 @@ ingress:
   host: ""
 
 service:
-  port: 8081
+  port: 8080
 
 nginx:
   enabled: true
