@@ -73,12 +73,12 @@ postgres://{{ .Values.database.user }}:{{ .Values.database.password }}@{{ includ
 App DB secret name
 */}}
 {{- define "babymilk.dbSecretName" -}}
-{{- default (printf "%s-db" (include "babymilk.fullname" .)) .Values.secrets.db.name -}}
+{{- default (printf "%s-db" (include "babymilk.name" .)) .Values.secrets.db.name -}}
 {{- end }}
 
 {{/*
 PostgreSQL auth secret name
 */}}
 {{- define "babymilk.postgresqlSecretName" -}}
-{{- default (printf "%s-postgresql" (include "babymilk.fullname" .)) .Values.secrets.postgresql.name -}}
+{{- default (printf "%s-postgresql" (include "babymilk.name" .)) .Values.secrets.postgresql.name -}}
 {{- end }}
