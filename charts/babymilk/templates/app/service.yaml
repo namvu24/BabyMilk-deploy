@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "milkapp.fullname" . }}
+  name: {{ include "babymilk.fullname" . }}
   labels:
-    {{- include "milkapp.labels" . | nindent 4 }}
+    {{- include "babymilk.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -12,5 +12,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "milkapp.selectorLabels" . | nindent 4 }}
+    {{- include "babymilk.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: app

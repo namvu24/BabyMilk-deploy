@@ -1,0 +1,7 @@
+apiVersion: v2
+name: babymilk
+description: A Helm chart for BabyMilk - Baby Milk Consumption Tracker
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+

@@ -1,6 +1,6 @@
-CHART_DIR := charts/milkapp
-NAMESPACE := milkapp
-RELEASE := milkapp
+CHART_DIR := charts/babymilk
+NAMESPACE := babymilk
+RELEASE := babymilk
 
 .PHONY: install upgrade uninstall status lint template
 

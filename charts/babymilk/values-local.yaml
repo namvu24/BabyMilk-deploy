@@ -1,7 +1,7 @@
 # k3d local development overrides
 
 image:
-  repository: jrbalrog9/babymilk
+  repository: namvu24/babymilk
   tag: latest
   pullPolicy: Always
 
@@ -12,6 +12,9 @@ ingress:
 
 nginx:
   enabled: true
+  cacheControl:
+    html: "no-cache, no-store, must-revalidate"
+    static: "public, max-age=60"
 
 postgresql:
   enabled: true

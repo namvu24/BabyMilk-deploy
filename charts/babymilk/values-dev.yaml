@@ -1,0 +1,38 @@
+# Dev environment overrides
+image:
+  repository: namvu24/babymilk
+  tag: "latest"
+  pullPolicy: Always
+
+replicaCount: 1
+
+ingress:
+  enabled: true
+  className: traefik
+  host: ""
+
+nginx:
+  enabled: true
+  cacheControl:
+    html: "no-cache, no-store, must-revalidate"
+    static: "public, max-age=300"
+
+postgresql:
+  enabled: true
+  auth:
+    username: babymilk
+    database: babymilk
+  persistence:
+    size: 1Gi
+
+secrets:
+  db:
+    create: false
+    name: babymilk-db
+    key: DATABASE_URL
+  postgresql:
+    create: false
+    name: babymilk-postgresql
+    userKey: POSTGRES_USER
+    passwordKey: POSTGRES_PASSWORD
+    databaseKey: POSTGRES_DB

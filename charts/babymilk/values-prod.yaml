@@ -1,6 +1,6 @@
 # Production environment overrides
 image:
-  repository: jrbalrog9/babymilk
+  repository: namvu24/babymilk
   tag: "stable"
   pullPolicy: IfNotPresent
 
@@ -16,6 +16,9 @@ nginx:
 
 postgresql:
   enabled: true
+  auth:
+    username: babymilk
+    database: babymilk
   persistence:
     size: 5Gi
   resources:
@@ -25,3 +28,15 @@ postgresql:
     limits:
       cpu: "1"
       memory: 512Mi
+
+secrets:
+  db:
+    create: false
+    name: babymilk-db
+    key: DATABASE_URL
+  postgresql:
+    create: false
+    name: babymilk-postgresql
+    userKey: POSTGRES_USER
+    passwordKey: POSTGRES_PASSWORD
+    databaseKey: POSTGRES_DB

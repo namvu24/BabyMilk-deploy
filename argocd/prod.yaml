@@ -1,24 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: milkapp-prod
+  name: babymilk-prod
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: https://github.com/namvu24/milkapp-deploy.git
+    repoURL: https://github.com/namvu24/babymilk-deploy.git
     targetRevision: main
-    path: charts/milkapp
+    path: charts/babymilk
     helm:
       valueFiles:
         - values.yaml
         - values-prod.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: milkapp-prod
+    namespace: app
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+

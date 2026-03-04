@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "milkapp.fullname" . }}-nginx
+  name: {{ include "babymilk.fullname" . }}-nginx
   labels:
-    {{- include "milkapp.labels" . | nindent 4 }}
+    {{- include "babymilk.labels" . | nindent 4 }}
     app.kubernetes.io/component: nginx
 spec:
   type: {{ .Values.nginx.service.type }}
@@ -14,5 +14,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "milkapp.nginxSelectorLabels" . | nindent 4 }}
+    {{- include "babymilk.nginxSelectorLabels" . | nindent 4 }}
 {{- end }}

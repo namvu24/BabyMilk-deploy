@@ -1,10 +1,10 @@
-# MilkApp Helm Chart — Default Values
+# BabyMilk Helm Chart — Default Values
 
 # -- App deployment
 replicaCount: 1
 
 image:
-  repository: jrbalrog9/babymilk
+  repository: namvu24/babymilk
   tag: latest
   pullPolicy: IfNotPresent
 
@@ -22,12 +22,19 @@ nginx:
   service:
     type: ClusterIP
     port: 80
+  cacheControl:
+    html: "no-cache, no-store, must-revalidate"
+    static: "public, max-age=300"
 
 # -- Ingress
 ingress:
   enabled: true
   className: traefik
   host: ""
+  # Add CDN/controller specific annotations per environment.
+  # Example (Cloudflare):
+  # annotations:
+  #   external-dns.alpha.kubernetes.io/target: your-cdn-endpoint.example.com
   annotations: {}
 
 # -- Database connection
@@ -35,6 +42,18 @@ database:
   host: ""
   port: 5432
   sslmode: disable
+
+secrets:
+  db:
+    create: true
+    name: ""
+    key: DATABASE_URL
+  postgresql:
+    create: true
+    name: ""
+    userKey: POSTGRES_USER
+    passwordKey: POSTGRES_PASSWORD
+    databaseKey: POSTGRES_DB
 
 # -- PostgreSQL (official image, self-managed)
 postgresql:
@@ -44,9 +63,9 @@ postgresql:
     tag: "16-alpine"
     pullPolicy: IfNotPresent
   auth:
-    username: milkapp
+    username: babymilk
     password:
-    database: milkapp
+    database: babymilk
   persistence:
     size: 1Gi
   resources:
