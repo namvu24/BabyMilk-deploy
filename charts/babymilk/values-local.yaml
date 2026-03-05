@@ -2,7 +2,7 @@
 
 image:
   repository: namvu24/babymilk
-  tag: latest
+  tag: main-c6c5128
   pullPolicy: Always
 
 ingress:

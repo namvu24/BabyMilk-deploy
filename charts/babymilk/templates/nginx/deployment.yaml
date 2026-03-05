@@ -16,6 +16,14 @@ spec:
       labels:
         {{- include "babymilk.nginxSelectorLabels" . | nindent 8 }}
     spec:
+      initContainers:
+        - name: copy-static
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["sh", "-c", "cp -r /app/static/* /usr/share/nginx/html/"]
+          volumeMounts:
+            - name: static-files
+              mountPath: /usr/share/nginx/html
       containers:
         - name: nginx
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
@@ -27,6 +35,8 @@ spec:
           volumeMounts:
             - name: nginx-config
               mountPath: /etc/nginx/conf.d
+            - name: static-files
+              mountPath: /usr/share/nginx/html
           resources:
             requests:
               cpu: 25m
@@ -38,4 +48,6 @@ spec:
         - name: nginx-config
           configMap:
             name: {{ include "babymilk.fullname" . }}-nginx
+        - name: static-files
+          emptyDir: {}
 {{- end }}
