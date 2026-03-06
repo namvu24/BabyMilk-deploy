@@ -287,6 +287,57 @@ helm upgrade --install vault hashicorp/vault \
   --wait
 ```
 
+Troubleshooting (Vault re-init breaks ESO auth):
+
+Symptom:
+- `SecretStore` shows `InvalidProviderConfig`
+- ESO logs show `auth/kubernetes/login ... 403 permission denied`
+
+Cause:
+- Vault was re-initialized/unsealed, so Kubernetes auth config/roles/policies were reset.
+
+Recovery:
+
+```bash
+# 1) Ensure Vault service account can review tokens
+kubectl create clusterrolebinding vault-auth-delegator \
+  --clusterrole=system:auth-delegator \
+  --serviceaccount=vault:vault \
+  --dry-run=client -o yaml | kubectl apply -f -
+
+# 2) Reconfigure Vault Kubernetes auth (run inside vault pod)
+kubectl exec -n vault vault-0 -- sh -lc '
+  vault auth enable kubernetes || true
+  TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+  vault write auth/kubernetes/config \
+    token_reviewer_jwt="$TOKEN" \
+    kubernetes_host="https://kubernetes.default.svc" \
+    kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+    disable_iss_validation="true"
+'
+
+# 3) Recreate policy + role used by SecretStore
+kubectl exec -n vault vault-0 -- sh -lc '
+  cat <<EOF | vault policy write babymilk-secrets -
+path "secret/data/babymilk/postgresql" { capabilities = ["read"] }
+EOF
+  vault write auth/kubernetes/role/babymilk-secrets \
+    bound_service_account_names="babymilk-vault-auth" \
+    bound_service_account_namespaces="app" \
+    policies="babymilk-secrets" ttl="1h"
+'
+
+# 4) Force ExternalSecret refresh
+ts=$(date +%s)
+kubectl annotate externalsecret -n app babymilk-postgresql force-sync=$ts --overwrite
+kubectl annotate externalsecret -n app babymilk-db force-sync=$ts --overwrite
+
+# 5) Verify
+kubectl get secretstore -n app
+kubectl get externalsecret -n app
+kubectl get secret -n app babymilk-postgresql babymilk-db
+```
+
 ### Install External Secrets Operator (ESO)
 
 > For k3s/k8s `v1.27.x`, pin ESO chart to `0.19.2`.
