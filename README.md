@@ -49,10 +49,41 @@ Use this order for a clean setup:
 5. Install External Secrets Operator (ESO) (chart `0.19.2` for k8s `1.27.x`).
 6. Write `dbpassword` to Vault at `secret/babymilk/postgresql`.
 7. Apply ArgoCD apps in order:
+  - `argocd/vault.yaml`
   - `argocd/external-secrets.yaml`
-  - `argocd/secrets-vault.yaml`
+  - `argocd/secrets-vault-dev.yaml` (dev) or `argocd/secrets-vault-prod.yaml` (prod)
   - `argocd/dev.yaml`
 8. For production, apply `argocd/prod.yaml`.
+
+## Automated Bootstrap (Recommended for New Clusters)
+
+Use one command to install ArgoCD and apply a root app-of-apps manifest that manages platform + app resources.
+
+### PowerShell
+
+```powershell
+# Dev
+.\scripts\bootstrap-gitops.ps1 -Environment dev
+
+# Prod
+.\scripts\bootstrap-gitops.ps1 -Environment prod
+```
+
+### Bash
+
+```bash
+# Dev
+./scripts/bootstrap-gitops.sh dev
+
+# Prod
+./scripts/bootstrap-gitops.sh prod
+```
+
+Root apps:
+- `argocd/root-dev.yaml` → `argocd/bootstrap/dev` (vault + external-secrets + secrets-vault-dev + dev app)
+- `argocd/root-prod.yaml` → `argocd/bootstrap/prod` (vault + external-secrets + secrets-vault-prod + prod app)
+
+Note: Vault chart deployment is automated, but Vault init/unseal is still required unless you configure auto-unseal (KMS/HSM).
 
 ## Quick Start
 
@@ -236,6 +267,26 @@ kubectl exec -n vault vault-0 -- sh -c "VAULT_TOKEN=$rootToken vault secrets lis
 kubectl exec -n vault vault-0 -- sh -c "VAULT_TOKEN=$rootToken vault secrets enable -path=secret kv-v2"
 ```
 
+Troubleshooting (Vault Helm upgrade conflict):
+
+If you hit:
+
+`UPGRADE FAILED ... MutatingWebhookConfiguration ... conflict ... .webhooks[name="vault.hashicorp.com"].clientConfig.caBundle`
+
+Run:
+
+```bash
+# Remove the conflicting injector webhook (it will be recreated by Helm)
+kubectl delete mutatingwebhookconfiguration vault-agent-injector-cfg --ignore-not-found
+
+# Retry Vault install/upgrade
+helm upgrade --install vault hashicorp/vault \
+  -n vault --create-namespace \
+  --set "server.dev.enabled=false" \
+  --set "injector.enabled=true" \
+  --wait
+```
+
 ### Install External Secrets Operator (ESO)
 
 > For k3s/k8s `v1.27.x`, pin ESO chart to `0.19.2`.
@@ -279,8 +330,10 @@ kubectl exec -n vault vault-0 -- sh -c "VAULT_TOKEN=$rootToken vault kv get secr
 ## Deploy to Dev/Prod with ArgoCD (Non-local)
 
 Use these manifests in `argocd/`:
+- `argocd/vault.yaml` (installs Vault)
 - `argocd/external-secrets.yaml` (installs ESO)
-- `argocd/secrets-vault.yaml` (installs shared SecretStore + ExternalSecrets in namespace `app`)
+- `argocd/secrets-vault-dev.yaml` (dev secrets)
+- `argocd/secrets-vault-prod.yaml` (prod secrets)
 - `argocd/dev.yaml` (deploys BabyMilk to namespace `app`)
 - `argocd/prod.yaml` (deploys BabyMilk to namespace `app`)
 
@@ -288,8 +341,28 @@ Use these manifests in `argocd/`:
 
 ```bash
 kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply --server-side --force-conflicts -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 kubectl get pods -n argocd
+```
+
+Troubleshooting (ApplicationSet CRD annotation too long):
+
+If you hit:
+
+`The CustomResourceDefinition "applicationsets.argoproj.io" is invalid: metadata.annotations: Too long`
+
+Run:
+
+```bash
+# Apply CRD server-side to avoid giant last-applied annotation
+kubectl apply --server-side --force-conflicts \
+  -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/crds/applicationset-crd.yaml
+
+# Optional cleanup if old annotation already exists
+kubectl annotate crd applicationsets.argoproj.io kubectl.kubernetes.io/last-applied-configuration-
+
+# Restart controller
+kubectl rollout restart deployment argocd-applicationset-controller -n argocd
 ```
 
 ### 2) Deploy Dev (with Vault + ESO)
@@ -300,8 +373,11 @@ Apply in this order:
 # ESO controller + CRDs
 kubectl apply -f argocd/external-secrets.yaml
 
-# Shared SecretStore + ExternalSecret resources
-kubectl apply -f argocd/secrets-vault.yaml
+# Vault
+kubectl apply -f argocd/vault.yaml
+
+# Dev SecretStore + ExternalSecret resources
+kubectl apply -f argocd/secrets-vault-dev.yaml
 
 # Dev app chart
 kubectl apply -f argocd/dev.yaml

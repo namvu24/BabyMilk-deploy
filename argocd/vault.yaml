@@ -1,17 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: babymilk-secrets
+  name: vault
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: https://github.com/namvu24/babymilk-deploy.git
-    targetRevision: v1.0.0
-    path: platform/vault-eso
+    repoURL: https://helm.releases.hashicorp.com
+    chart: vault
+    targetRevision: 0.32.0
+    helm:
+      parameters:
+        - name: server.dev.enabled
+          value: "false"
+        - name: injector.enabled
+          value: "true"
   destination:
     server: https://kubernetes.default.svc
-    namespace: app
+    namespace: vault
   syncPolicy:
     automated:
       prune: true

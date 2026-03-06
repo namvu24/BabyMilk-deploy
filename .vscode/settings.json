@@ -1,0 +1,6 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "helm": true,
+        "k3d": true
+    }
+}
