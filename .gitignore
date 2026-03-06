@@ -1,1 +1,2 @@
-values-local-secrets.yamlvault-init.json
+values-local-secrets.yaml
+vault-init.json
