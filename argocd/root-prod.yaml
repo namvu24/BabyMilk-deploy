@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/namvu24/babymilk-deploy.git
-    targetRevision: v1.0.0
+    targetRevision: refs/tags/v1.1.0
     path: argocd/bootstrap/prod
   destination:
     server: https://kubernetes.default.svc
