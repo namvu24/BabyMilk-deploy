@@ -34,6 +34,9 @@ secrets:
     create: false
     name: babymilk-db
     key: DATABASE_URL
+  gemini:
+    name: babymilk-gemini
+    key: GEMINI_API_KEY
   postgresql:
     create: false
     name: babymilk-postgresql

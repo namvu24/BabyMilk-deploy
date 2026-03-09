@@ -77,6 +77,13 @@ App DB secret name
 {{- end }}
 
 {{/*
+Gemini API secret name
+*/}}
+{{- define "babymilk.geminiSecretName" -}}
+{{- default (printf "%s-gemini" (include "babymilk.name" .)) .Values.secrets.gemini.name -}}
+{{- end }}
+
+{{/*
 PostgreSQL auth secret name
 */}}
 {{- define "babymilk.postgresqlSecretName" -}}

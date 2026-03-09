@@ -48,6 +48,9 @@ secrets:
     create: true
     name: ""
     key: DATABASE_URL
+  gemini:
+    name: ""
+    key: GEMINI_API_KEY
   postgresql:
     create: true
     name: ""

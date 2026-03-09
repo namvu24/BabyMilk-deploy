@@ -35,6 +35,12 @@ spec:
                 secretKeyRef:
                   name: {{ include "babymilk.dbSecretName" . }}
                   key: {{ .Values.secrets.db.key }}
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "babymilk.geminiSecretName" . }}
+                  key: {{ .Values.secrets.gemini.key }}
+                  optional: true
             - name: PORT
               value: "{{ .Values.service.port }}"
           resources:
