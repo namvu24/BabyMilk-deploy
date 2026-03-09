@@ -1,7 +1,7 @@
 # Dev environment overrides
 image:
   repository: namvu24/babymilk
-  tag: "main-bee4fc8"
+  tag: "main-4af119c"
   pullPolicy: Always
 
 replicaCount: 1
