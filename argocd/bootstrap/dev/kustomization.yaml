@@ -4,4 +4,5 @@ resources:
   - vault.yaml
   - external-secrets.yaml
   - secrets-vault-dev.yaml
+  - kube-prometheus-stack.yaml
   - dev.yaml
