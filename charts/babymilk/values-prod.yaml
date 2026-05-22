@@ -43,3 +43,9 @@ secrets:
     userKey: POSTGRES_USER
     passwordKey: POSTGRES_PASSWORD
     databaseKey: POSTGRES_DB
+
+backup:
+  enabled: true
+  blobPrefix: "babymilk-prod"
+  azure:
+    storageAccount: "babymilkbackupsprod"

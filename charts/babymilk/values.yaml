@@ -80,3 +80,35 @@ postgresql:
     limits:
       cpu: 500m
       memory: 256Mi
+
+# -- Database backup (direct to Azure Blob Storage)
+backup:
+  enabled: false
+  schedule: "0 */6 * * *"
+  scratchSizeLimit: 100Mi
+  # -- Blob path prefix (e.g., babymilk-dev or babymilk-prod)
+  blobPrefix: ""
+  dump:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+  azure:
+    storageAccount: ""
+    container: "backups"
+    secretName: "babymilk-backup-azure"
+    secretKey: "AZURE_STORAGE_SAS_TOKEN"
+    image:
+      repository: mcr.microsoft.com/azure-cli
+      tag: "2.69.0"
+      pullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
